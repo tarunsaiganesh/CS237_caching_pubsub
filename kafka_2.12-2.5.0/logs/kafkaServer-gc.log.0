@@ -1,0 +1,23 @@
+[2021-05-30T19:40:57.325-0700][gc,heap] Heap region size: 1M
+[2021-05-30T19:40:57.331-0700][gc     ] Using G1
+[2021-05-30T19:40:57.331-0700][gc,heap,coops] Heap address: 0x00000000c0000000, size: 1024 MB, Compressed Oops mode: 32-bit
+[2021-05-30T19:40:57.332-0700][gc,cds       ] Mark closed archive regions in map: [0x00000000fff00000, 0x00000000fff6aff8]
+[2021-05-30T19:40:57.332-0700][gc,cds       ] Mark open archive regions in map: [0x00000000ffe00000, 0x00000000ffe46ff8]
+[2021-05-30T19:40:58.284-0700][gc,start     ] GC(0) Pause Young (Normal) (G1 Evacuation Pause)
+[2021-05-30T19:40:58.285-0700][gc,task      ] GC(0) Using 10 workers of 10 for evacuation
+[2021-05-30T19:40:58.291-0700][gc,phases    ] GC(0)   Pre Evacuate Collection Set: 0.0ms
+[2021-05-30T19:40:58.291-0700][gc,phases    ] GC(0)   Evacuate Collection Set: 5.7ms
+[2021-05-30T19:40:58.291-0700][gc,phases    ] GC(0)   Post Evacuate Collection Set: 0.5ms
+[2021-05-30T19:40:58.291-0700][gc,phases    ] GC(0)   Other: 0.8ms
+[2021-05-30T19:40:58.291-0700][gc,heap      ] GC(0) Eden regions: 51->0(44)
+[2021-05-30T19:40:58.291-0700][gc,heap      ] GC(0) Survivor regions: 0->7(7)
+[2021-05-30T19:40:58.291-0700][gc,heap      ] GC(0) Old regions: 2->2
+[2021-05-30T19:40:58.291-0700][gc,heap      ] GC(0) Humongous regions: 0->0
+[2021-05-30T19:40:58.291-0700][gc,metaspace ] GC(0) Metaspace: 15905K->15905K(1062912K)
+[2021-05-30T19:40:58.291-0700][gc           ] GC(0) Pause Young (Normal) (G1 Evacuation Pause) 51M->6M(1024M) 6.962ms
+[2021-05-30T19:40:58.291-0700][gc,cpu       ] GC(0) User=0.06s Sys=0.00s Real=0.01s
+[2021-05-30T19:41:01.418-0700][gc,heap,exit ] Heap
+[2021-05-30T19:41:01.418-0700][gc,heap,exit ]  garbage-first heap   total 1048576K, used 24465K [0x00000000c0000000, 0x0000000100000000)
+[2021-05-30T19:41:01.418-0700][gc,heap,exit ]   region size 1024K, 25 young (25600K), 7 survivors (7168K)
+[2021-05-30T19:41:01.418-0700][gc,heap,exit ]  Metaspace       used 20166K, capacity 20752K, committed 20992K, reserved 1067008K
+[2021-05-30T19:41:01.418-0700][gc,heap,exit ]   class space    used 2734K, capacity 2958K, committed 3072K, reserved 1048576K

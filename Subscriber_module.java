@@ -114,7 +114,7 @@ public class Subscriber_module{
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
                 
         System.out.println("a");   
-        while (true){
+       /* while (true){
             System.out.println("b");
            //System.out.println("inside while loop");
            ConsumerRecords<String, String> sub_records = sub_poller.poll(1);
@@ -139,6 +139,6 @@ public class Subscriber_module{
                 }
            }
            System.out.println("looping");
-        }   
+        }   */
     }
 }
