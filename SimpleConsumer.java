@@ -1,52 +1,90 @@
 import java.util.Properties;
+import java.util.*;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import java.util.Arrays;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-
-//import jdk.internal.org.jline.terminal.Size;
-
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+
 
 public class SimpleConsumer {
    public static void main(String[] args) throws Exception {
-      if(args.length == 0){
-         System.out.println("Enter topic name");
-         return;
-      }
+      //Produer properties
+      Properties subscriber_props = new Properties();
+           
+      subscriber_props.put("bootstrap.servers", "localhost:9092");
+      subscriber_props.put("acks", "all");
+      subscriber_props.put("retries", 0);
+      subscriber_props.put("batch.size", 16384);
+      subscriber_props.put("linger.ms", 1);
+      subscriber_props.put("buffer.memory", 33554432);
+      subscriber_props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+      subscriber_props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        
+      Producer<String, String> producer = new KafkaProducer<String, String>(subscriber_props);
+
+      //send hard-coded sub data
+      System.out.println("Sending subscriptions...");
+      producer.send(new ProducerRecord<String, String>("sub_log", "1", "10001"));
+      producer.send(new ProducerRecord<String, String>("sub_log", "2", "00110"));
+      producer.send(new ProducerRecord<String, String>("sub_log", "3", "11000"));
+      System.out.println("...sent");
+      producer.close();
+
       //Kafka consumer configuration settings
-      String topicName = args[0].toString();
-      Properties props = new Properties();
+      Properties consumer_props = new Properties();
       
-      props.put("bootstrap.servers", "localhost:9092");
-      props.put("group.id", "test");
-      props.put("auto.offset.reset", "earliest"); //added to config
-      props.put("enable.auto.commit", "true");
-      props.put("auto.commit.interval.ms", "1000");
-      props.put("session.timeout.ms", "30000");
-      props.put("key.deserializer", 
-         "org.apache.kafka.common.serialization.StringDeserializer");
-      props.put("value.deserializer", 
-         "org.apache.kafka.common.serialization.StringDeserializer");
-      KafkaConsumer<String, String> consumer = new KafkaConsumer
-         <String, String>(props);
+      consumer_props.put("bootstrap.servers", "localhost:9092");
+      consumer_props.put("group.id", "test1");
+      consumer_props.put("auto.offset.reset", "earliest"); //added to config
+      consumer_props.put("enable.auto.commit", "true");
+      consumer_props.put("auto.commit.interval.ms", "1000");
+      consumer_props.put("session.timeout.ms", "30000");
+      consumer_props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+      consumer_props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+      KafkaConsumer<String, String> c1_poller = new KafkaConsumer<String, String>(consumer_props);
+      consumer_props.put("group.id", "test2");
+      KafkaConsumer<String, String> c2_poller = new KafkaConsumer<String, String>(consumer_props);
+      consumer_props.put("group.id", "test3");
+      KafkaConsumer<String, String> c3_poller = new KafkaConsumer<String, String>(consumer_props);
       
       //Kafka Consumer subscribes list of topics here.
-      consumer.subscribe(Arrays.asList(topicName));
+      c1_poller.subscribe(Arrays.asList("consumer1"));
+      c2_poller.subscribe(Arrays.asList("consumer2"));
+      c3_poller.subscribe(Arrays.asList("consumer3"));
       
-      //print the topic name
-      System.out.println("Subscribed to topic " + topicName);
-      int i = 0;
+      //print the topic names
+      System.out.println("Subscribed to topics " + "consumer1_topic, " + "consumer2_topic, " + "consumer3_topic");
       
-      while (true) {
-         //System.out.println("inside while loop");
-         ConsumerRecords<String, String> records = consumer.poll(1);
-         //System.out.println(records.isEmpty());
-         for (ConsumerRecord<String, String> record : records)
+      while (true) 
+      {
+         //consumer1 
+         ConsumerRecords<String, String> consumer1 = c1_poller.poll(1);
+         for (ConsumerRecord<String, String> record : consumer1)
          {
          // print the offset,key and value for the consumer records.
-         System.out.printf("offset = %d, key = %s, value = %s\n", 
-            record.offset(), record.key(), record.value());
+         System.out.println("---consumer1---" );
+         System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
          }
+         //consumer2
+         ConsumerRecords<String, String> consumer2 = c2_poller.poll(1);
+         for (ConsumerRecord<String, String> record : consumer2)
+         {
+         // print the offset,key and value for the consumer records.
+         System.out.println("---consumer2---" );
+         System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+         }
+         //consumer3
+         ConsumerRecords<String, String> consumer3 = c3_poller.poll(1);
+         for (ConsumerRecord<String, String> record : consumer3)
+         {
+         // print the offset,key and value for the consumer records.
+         System.out.println("---consumer3---" );
+         System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+         }
+         //System.out.println("looping");
       }
    }
 }

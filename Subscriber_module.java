@@ -23,13 +23,18 @@ public class Subscriber_module{
             // add if item is not already in list
             if(!itemsList.contains(myItem)) itemsList.add(myItem);
         }
+        for(Map.Entry m : items.entrySet()){    
+            System.out.println(m.getKey()+" "+m.getValue());    
+        }
     }
 
     public static ArrayList<String> getFromList(HashMap<String, ArrayList<String>> items, String mapKey) {
-        ArrayList<String> itemsList = null;
+        ArrayList<String> itemsList = new ArrayList<String>();
         if(items.get(mapKey) != null){
             itemsList = items.get(mapKey);
         }
+        System.out.println("mapkey: " + mapKey);
+        System.out.println(items.get(mapKey));
         return itemsList;
     }
 
@@ -39,15 +44,21 @@ public class Subscriber_module{
         try{
         String zoo_cmd = "kafka_2.12-2.5.0/bin/zookeeper-server-start.sh kafka_2.12-2.5.0/config/zookeeper.properties";
         String broker_cmd = "kafka_2.12-2.5.0/bin/kafka-server-start.sh kafka_2.12-2.5.0/config/server.properties";
+        String delete_pub_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic pub_log";
+        String delete_sub_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic sub_log";
         String publication_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic pub_log";
         String subscription_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic sub_log";
         String consumer1_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer1";
         String consumer2_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer2";
         String consumer3_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer3";
-        String consumer4_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer4";
+        //String consumer4_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer4";
         Runtime run = Runtime.getRuntime();
-        run.exec(zoo_cmd);
-        run.exec(broker_cmd);
+        //run.exec(zoo_cmd);
+        //run.exec(broker_cmd);
+        Process del = run.exec(delete_pub_topic);
+        del.waitFor();
+        Process del2 = run.exec(delete_sub_topic);
+        del2.waitFor();
         Process pr = run.exec(publication_topic);
         pr.waitFor();
         Process sr = run.exec(subscription_topic);
@@ -58,8 +69,8 @@ public class Subscriber_module{
         c2.waitFor();
         Process c3 = run.exec(consumer3_topic);
         c3.waitFor();
-        Process c4 = run.exec(consumer4_topic);
-        c4.waitFor();
+        //Process c4 = run.exec(consumer4_topic);
+        //c4.waitFor();
         }
         catch (Exception e) {
             System.out.println(e);
@@ -69,11 +80,12 @@ public class Subscriber_module{
         HashMap<String, ArrayList<String>> items = new HashMap<String, ArrayList<String>>();
         Random rand = new Random();
 
-        addToList(items, "00000", String.valueOf(rand.nextInt(4)));
+        /*addToList(items, "00000", String.valueOf(rand.nextInt(4)));
         addToList(items, "10000", String.valueOf(rand.nextInt(4)));
         addToList(items, "00100", String.valueOf(rand.nextInt(4)));
         addToList(items, "00010", String.valueOf(rand.nextInt(4)));
-        
+        */
+        System.out.println("ready...");
         for(Map.Entry m : items.entrySet()){    
             System.out.println(m.getKey()+" "+m.getValue());    
            }
@@ -88,10 +100,8 @@ public class Subscriber_module{
         consumer_props.put("enable.auto.commit", "true");
         consumer_props.put("auto.commit.interval.ms", "1000");
         consumer_props.put("session.timeout.ms", "30000");
-        consumer_props.put("key.deserializer", 
-           "org.apache.kafka.common.serialization.StringDeserializer");
-        consumer_props.put("value.deserializer", 
-           "org.apache.kafka.common.serialization.StringDeserializer");
+        consumer_props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        consumer_props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         KafkaConsumer<String, String> pub_poller = new KafkaConsumer<String, String>(consumer_props);
         consumer_props.put("group.id", "test2");
         KafkaConsumer<String, String> sub_poller = new KafkaConsumer<String, String>(consumer_props);
@@ -113,32 +123,35 @@ public class Subscriber_module{
         
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
                 
-        System.out.println("a");   
-       /* while (true){
-            System.out.println("b");
+        //System.out.println("a");   
+    while (true){
+            //System.out.println("b");
            //System.out.println("inside while loop");
            ConsumerRecords<String, String> sub_records = sub_poller.poll(1);
            //System.out.println(records.isEmpty());
-           System.out.println("x");
+           //System.out.println("x");
            for (ConsumerRecord<String, String> record : sub_records){
                 // print the offset,key and value for the consumer records.
-                System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+                System.out.printf("sub offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
                 addToList(items, record.value(), record.key());
            }
-           System.out.println("c");
+           //System.out.println("c");
            ConsumerRecords<String, String> pub_records = pub_poller.poll(1);
            //System.out.println(records.isEmpty());
-           System.out.println("d");
+           //System.out.println("d");
            for (ConsumerRecord<String, String> record : pub_records){
                 // print the offset,key and value for the consumer records.
                 System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-                ArrayList<String> list_of_sub = getFromList(items, record.key());
+                ArrayList<String> list_of_sub = getFromList(items, record.value());
+                System.out.println(list_of_sub);
                 for(String s : list_of_sub){
+                        System.out.println(s);
+                        System.out.println("consumer"+s);
                         producer.send(new ProducerRecord<String, String>("consumer"+s, record.key(), record.value()));
                         System.out.println("Message sent successfully");
                 }
            }
-           System.out.println("looping");
-        }   */
+           //System.out.println("looping");
+        }   
     }
 }

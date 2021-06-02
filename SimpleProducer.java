@@ -61,17 +61,17 @@ public class SimpleProducer {
                      // use string.split to load a string array with the values from
                      // each line of
                      // the file, using a comma as the delimiter
-                     System.out.println('W');
+                     //System.out.println('W');
                      String[] attributes = line.split(",");
                      //SEND RECORD TO PRODUCER
                      //producer.send(new ProducerRecord<String, String>("pub_log", attributes[0], attributes[1]));
                      System.out.println("about to send...");
-                     producer.send(new ProducerRecord<String, String>("pub_log", "a", "b"));
+                     producer.send(new ProducerRecord<String, String>("pub_log", attributes[0], attributes[1]));
                      System.out.println("sent");
                      // read next line before looping
                      // if end of file reached, line would be null
                      line = br.readLine();
-                     System.out.println('c');
+                     //System.out.println('c');
                  }
                  producer.close();
      
