@@ -46,12 +46,13 @@ public class Subscriber_module{
         String broker_cmd = "kafka_2.12-2.5.0/bin/kafka-server-start.sh kafka_2.12-2.5.0/config/server.properties";
         String delete_pub_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic pub_log";
         String delete_sub_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic sub_log";
+        String delete_datab_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic database_log";
         String publication_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic pub_log";
         String subscription_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic sub_log";
         String consumer1_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer1";
         String consumer2_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer2";
         String consumer3_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer3";
-        //String consumer4_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic consumer4";
+        String database_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic database_log";
         Runtime run = Runtime.getRuntime();
         //run.exec(zoo_cmd);
         //run.exec(broker_cmd);
@@ -59,6 +60,8 @@ public class Subscriber_module{
         del.waitFor();
         Process del2 = run.exec(delete_sub_topic);
         del2.waitFor();
+        Process del3 = run.exec(delete_datab_topic);
+        del3.waitFor();
         Process pr = run.exec(publication_topic);
         pr.waitFor();
         Process sr = run.exec(subscription_topic);
@@ -69,8 +72,8 @@ public class Subscriber_module{
         c2.waitFor();
         Process c3 = run.exec(consumer3_topic);
         c3.waitFor();
-        //Process c4 = run.exec(consumer4_topic);
-        //c4.waitFor();
+        Process datab = run.exec(database_topic);
+        datab.waitFor();
         }
         catch (Exception e) {
             System.out.println(e);
@@ -85,6 +88,7 @@ public class Subscriber_module{
         addToList(items, "00100", String.valueOf(rand.nextInt(4)));
         addToList(items, "00010", String.valueOf(rand.nextInt(4)));
         */
+        
         System.out.println("ready...");
         for(Map.Entry m : items.entrySet()){    
             System.out.println(m.getKey()+" "+m.getValue());    
