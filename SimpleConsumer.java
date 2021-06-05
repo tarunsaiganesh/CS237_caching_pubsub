@@ -23,15 +23,15 @@ public class SimpleConsumer {
       subscriber_props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
       subscriber_props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         
-      Producer<String, String> producer = new KafkaProducer<String, String>(subscriber_props);
+      Producer<String, String> sub_producer = new KafkaProducer<String, String>(subscriber_props);
 
       //send hard-coded sub data
       System.out.println("Sending subscriptions...");
-      producer.send(new ProducerRecord<String, String>("sub_log", "1", "10001"));
-      producer.send(new ProducerRecord<String, String>("sub_log", "2", "00110"));
-      producer.send(new ProducerRecord<String, String>("sub_log", "3", "11000"));
+      sub_producer.send(new ProducerRecord<String, String>("sub_log", "1", "10001"));
+      sub_producer.send(new ProducerRecord<String, String>("sub_log", "2", "00110"));
+      sub_producer.send(new ProducerRecord<String, String>("sub_log", "3", "11000"));
       System.out.println("...sent");
-      producer.close();
+      sub_producer.close();
 
       //Kafka consumer configuration settings
       Properties consumer_props = new Properties();
@@ -56,35 +56,89 @@ public class SimpleConsumer {
       c3_poller.subscribe(Arrays.asList("consumer3"));
       
       //print the topic names
-      System.out.println("Subscribed to topics " + "consumer1_topic, " + "consumer2_topic, " + "consumer3_topic");
-      
+      System.out.println("Subscribed to topics: " + "consumer1_topic, " + "consumer2_topic, " + "consumer3_topic");
+      //create new datab_producer object
+      Producer<String, String> datab_producer = new KafkaProducer<String, String>(subscriber_props);
+      //create two ArrayLists
+      ArrayList<Integer> lastSeen = new ArrayList<Integer>();
+      lastSeen.add(0);
+      lastSeen.add(0);
+      lastSeen.add(0);
+      ArrayList<Integer> consumerID = new ArrayList<Integer>();
+      consumerID.add(1);
+      consumerID.add(2);
+      consumerID.add(3);
+      //initalize consumer iterable
+      int j;
       while (true) 
       {
+         j = 0;
+
          //consumer1 
          ConsumerRecords<String, String> consumer1 = c1_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer1)
-         {
-         // print the offset,key and value for the consumer records.
-         System.out.println("---consumer1---" );
-         System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-         }
+            {
+            // print the offset,key and value for the consumer records.
+            System.out.println("---consumer1---" );
+            System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            if (record.key != lastSeen.get(j) + 1 && record.key()>lastSeen.get(j))
+               {
+                  int i;
+                  for(i = lastSeen.get(j)+1;i<record.key();i++)
+                  {
+                     datab_producer.send(new ProducerRecord<String, String>("database_log", consumerID.get(j).toString(), ""+i));
+                  }
+               }
+            if(record.key()>lastSeen.get(j))
+               {
+                  lastSeen.set(j, record.key());
+               }
+            }
+         j++;
+
          //consumer2
          ConsumerRecords<String, String> consumer2 = c2_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer2)
          {
-         // print the offset,key and value for the consumer records.
-         System.out.println("---consumer2---" );
-         System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            // print the offset,key and value for the consumer records.
+            System.out.println("---consumer2---" );
+            System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            if (record.key != lastSeen.get(j) + 1 && record.key()>lastSeen.get(j))
+            {
+               int i;
+               for(i = lastSeen.get(j)+1;i<record.key();i++)
+               {
+                  datab_producer.send(new ProducerRecord<String, String>("database_log", consumerID.get(j).toString(), ""+i));
+               }
+            }
+            if(record.key()>lastSeen.get(j))
+            {
+               lastSeen.set(j, record.key());
+            }
          }
+         j++;
+         
          //consumer3
          ConsumerRecords<String, String> consumer3 = c3_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer3)
          {
-         // print the offset,key and value for the consumer records.
-         System.out.println("---consumer3---" );
-         System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            // print the offset,key and value for the consumer records.
+            System.out.println("---consumer3---" );
+            System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            if (record.key != lastSeen.get(j) + 1 && record.key()>lastSeen.get(j))
+            {
+               int i;
+               for(i = lastSeen.get(j)+1;i<record.key();i++)
+               {
+                  datab_producer.send(new ProducerRecord<String, String>("database_log", consumerID.get(j).toString(), ""+i));
+               }
+            }
+            if(record.key()>lastSeen.get(j))
+            {
+               lastSeen.set(j, record.key());
+            }
          }
-         //System.out.println("looping");
       }
    }
+   
 }
