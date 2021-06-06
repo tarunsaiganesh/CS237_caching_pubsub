@@ -225,7 +225,7 @@ public class Subscriber_module{
 				ArrayList<String> list_of_sub = getFromList(items, record.value());
 				System.out.println(list_of_sub);
 				no_of_subs = list_of_sub.size();
-				isCached = cache_function.update(no_of_subs);
+				isCached = cache_function.update(no_of_subs, Integer.parseInt(args[0]));
 				for(String s : list_of_sub){
 					seq_no = lastSeqNo.get(Integer.parseInt(s)-1); 
 					lastSeqNo.set(Integer.parseInt(s)-1, seq_no + 1);

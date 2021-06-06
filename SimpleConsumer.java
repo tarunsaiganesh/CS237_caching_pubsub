@@ -29,7 +29,8 @@ public class SimpleConsumer {
       System.out.println("Sending subscriptions...");
       sub_producer.send(new ProducerRecord<String, String>("sub_log", "1", "10001"));
       sub_producer.send(new ProducerRecord<String, String>("sub_log", "2", "00110"));
-      sub_producer.send(new ProducerRecord<String, String>("sub_log", "3", "11000"));
+      sub_producer.send(new ProducerRecord<String, String>("sub_log", "3", "10001"));
+	  //sub_producer.send(new ProducerRecord<String, String>("sub_log", "4", "11000"));
       System.out.println("...sent");
       sub_producer.close();
 
@@ -54,6 +55,7 @@ public class SimpleConsumer {
       c1_poller.subscribe(Arrays.asList("consumer1"));
       c2_poller.subscribe(Arrays.asList("consumer2"));
       c3_poller.subscribe(Arrays.asList("consumer3"));
+	  //c4_poller.subscribe(Arrays.asList("consumer3"));
       
       //print the topic names
       System.out.println("Subscribed to topics: " + "consumer1_topic, " + "consumer2_topic, " + "consumer3_topic");
