@@ -41,8 +41,8 @@ public class Subscriber_module{
         if(items.get(mapKey) != null){
             itemsList = items.get(mapKey);
         }
-        System.out.println("mapkey: " + mapKey);
-        System.out.println(items.get(mapKey));
+        //System.out.println("mapkey: " + mapKey);
+        //System.out.println(items.get(mapKey));
         return itemsList;
     }
 
@@ -77,7 +77,10 @@ public class Subscriber_module{
         String broker_cmd = "kafka_2.12-2.5.0/bin/kafka-server-start.sh kafka_2.12-2.5.0/config/server.properties";
         String delete_pub_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic pub_log";
         String delete_sub_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic sub_log";
-		String delete_datab_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic database_log";        
+		String delete_datab_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic database_log";
+		String delete_consumer1_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic consumer1";
+		String delete_consumer2_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic consumer2";
+		String delete_consumer3_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic consumer3";        
 		String publication_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic pub_log";
         String subscription_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic sub_log";
 		String database_topic = "kafka_2.12-2.5.0/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic database_log";        
@@ -94,6 +97,12 @@ public class Subscriber_module{
         del2.waitFor();
 		Process del3 = run.exec(delete_datab_topic);
         del3.waitFor();
+		Process del4 = run.exec(delete_consumer1_topic);
+        del4.waitFor();
+		Process del5 = run.exec(delete_consumer2_topic);
+        del5.waitFor();
+		Process del6 = run.exec(delete_consumer3_topic);
+        del6.waitFor();
         Process pr = run.exec(publication_topic);
         pr.waitFor();
         Process sr = run.exec(subscription_topic);
@@ -166,10 +175,16 @@ public class Subscriber_module{
 		boolean isCached = false;
 		int no_of_subs = 0;
 		int seq_no;
+		int pub_seq_no = 0;
+		int flag = 0;
 		ArrayList<Integer> lastSeqNo = new ArrayList<Integer>();
       	lastSeqNo.add(0);
       	lastSeqNo.add(0);
       	lastSeqNo.add(0);
+		ArrayList<Integer> consumerID = new ArrayList<Integer>();
+      	consumerID.add(1);
+      	consumerID.add(2);
+      	consumerID.add(3);
 
 		Connection connect = null;
     	Statement statement = null;
@@ -196,7 +211,7 @@ public class Subscriber_module{
            //System.out.println("x");
            for (ConsumerRecord<String, String> record : sub_records){
                 // print the offset,key and value for the consumer records.
-                System.out.printf("sub offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+                //System.out.printf("sub offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
                 addToList(items, record.value(), record.key());
            }
            //System.out.println("c");
@@ -205,7 +220,8 @@ public class Subscriber_module{
            //System.out.println("d");
            for (ConsumerRecord<String, String> record : pub_records){
                 // print the offset,key and value for the consumer records.
-                System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+				pub_seq_no++;
+                //System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
 				ArrayList<String> list_of_sub = getFromList(items, record.value());
 				System.out.println(list_of_sub);
 				no_of_subs = list_of_sub.size();
@@ -238,11 +254,21 @@ public class Subscriber_module{
 					}
 				}
            }
+
+			if(pub_seq_no == 1000 && flag == 0){
+				flag = 1;
+				for(int i = 0; i < lastSeqNo.size(); i++){
+					System.out.println("Last Seq No:" + lastSeqNo.get(i) + " Sub ID:" + i);
+					int dummy_seq_no = lastSeqNo.get(i) + 1;
+					producer.send(new ProducerRecord<String, String>("consumer"+consumerID.get(i), ""+dummy_seq_no, ""));
+				}
+
+			}
            //System.out.println("looping");
 			ConsumerRecords<String, String> database_records = database_poller.poll(1);
 			for (ConsumerRecord<String, String> record : database_records){
                 // print the offset,key and value for the consumer records.
-                System.out.printf("sub offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+                System.out.printf("database offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
                 //addToList(items, record.value(), record.key());
 				//Fetch from database and write to corresponding cache log
 				statement = connect.createStatement();

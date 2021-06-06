@@ -14,7 +14,7 @@ public class Threshold
     public boolean update(double t)
     {
         //IF LESS THAN, RETURN true
-        if(threshold<=t)
+        /*if(threshold<=t)
         {
             threshold = threshold + lambda*t;
             return true;
@@ -24,8 +24,8 @@ public class Threshold
         {
             threshold = threshold - mu*t;
             return false;
-        }
-		//return false;
+        }*/
+		return false;
 		
     }
 }
