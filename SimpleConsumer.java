@@ -81,17 +81,17 @@ public class SimpleConsumer {
             // print the offset,key and value for the consumer records.
             System.out.println("---consumer1---" );
             System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-            if (record.key != lastSeen.get(j) + 1 && record.key()>lastSeen.get(j))
+            if (Integer.parseInt(record.key()) != lastSeen.get(j) + 1 && Integer.parseInt(record.key())>lastSeen.get(j))
                {
                   int i;
-                  for(i = lastSeen.get(j)+1;i<record.key();i++)
+                  for(i = lastSeen.get(j)+1;i<Integer.parseInt(record.key());i++)
                   {
                      datab_producer.send(new ProducerRecord<String, String>("database_log", consumerID.get(j).toString(), ""+i));
                   }
                }
-            if(record.key()>lastSeen.get(j))
+            if(Integer.parseInt(record.key())>lastSeen.get(j))
                {
-                  lastSeen.set(j, record.key());
+                  lastSeen.set(j, Integer.parseInt(record.key()));
                }
             }
          j++;
@@ -103,17 +103,17 @@ public class SimpleConsumer {
             // print the offset,key and value for the consumer records.
             System.out.println("---consumer2---" );
             System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-            if (record.key != lastSeen.get(j) + 1 && record.key()>lastSeen.get(j))
+            if (Integer.parseInt(record.key()) != lastSeen.get(j) + 1 && Integer.parseInt(record.key())>lastSeen.get(j))
             {
                int i;
-               for(i = lastSeen.get(j)+1;i<record.key();i++)
+               for(i = lastSeen.get(j)+1;i<Integer.parseInt(record.key());i++)
                {
                   datab_producer.send(new ProducerRecord<String, String>("database_log", consumerID.get(j).toString(), ""+i));
                }
             }
-            if(record.key()>lastSeen.get(j))
+            if(Integer.parseInt(record.key())>lastSeen.get(j))
             {
-               lastSeen.set(j, record.key());
+               lastSeen.set(j, Integer.parseInt(record.key()));
             }
          }
          j++;
@@ -125,17 +125,17 @@ public class SimpleConsumer {
             // print the offset,key and value for the consumer records.
             System.out.println("---consumer3---" );
             System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
-            if (record.key != lastSeen.get(j) + 1 && record.key()>lastSeen.get(j))
+            if (Integer.parseInt(record.key()) != lastSeen.get(j) + 1 && Integer.parseInt(record.key())>lastSeen.get(j))
             {
                int i;
-               for(i = lastSeen.get(j)+1;i<record.key();i++)
+               for(i = lastSeen.get(j)+1;i<Integer.parseInt(record.key());i++)
                {
                   datab_producer.send(new ProducerRecord<String, String>("database_log", consumerID.get(j).toString(), ""+i));
                }
             }
-            if(record.key()>lastSeen.get(j))
+            if(Integer.parseInt(record.key())>lastSeen.get(j))
             {
-               lastSeen.set(j, record.key());
+               lastSeen.set(j, Integer.parseInt(record.key()));
             }
          }
       }

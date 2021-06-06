@@ -6,24 +6,26 @@ public class Threshold
 
     public Threshold()
     {
-        lambda = 0.5;
-        mu = 0.5;
+        lambda = 0.3;
+        mu = 0.2;
         threshold = 0.0;
     }
 
     public boolean update(double t)
     {
         //IF LESS THAN, RETURN true
-        if(threshold<t)
+        if(threshold<=t)
         {
-            threshold = threshhold + lambda*t;
+            threshold = threshold + lambda*t;
             return true;
         }
         //IF GREATER, RETURN false
-        else if(threshhold>t)
+        else
         {
-            threshold = threshhold - mu*t;
+            threshold = threshold - mu*t;
             return false;
         }
+		//return false;
+		
     }
 }

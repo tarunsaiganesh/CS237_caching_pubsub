@@ -9,6 +9,14 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
+
 public class Subscriber_module{
 
     public static void addToList(HashMap<String, ArrayList<String>> items, String mapKey, String myItem) {
@@ -37,6 +45,29 @@ public class Subscriber_module{
         System.out.println(items.get(mapKey));
         return itemsList;
     }
+
+	private static String writeResultSet(ResultSet resultSet) throws SQLException {
+        // ResultSet is initially before the first data set
+		String value = "";
+
+        while (resultSet.next()) {
+            // It is possible to get the columns via name
+            // also possible to get the columns via the column number
+            // which starts at 1
+            // e.g. resultSet.getSTring(2);
+            //subid = resultSet.getString("SUBID");
+            //seqno = resultSet.getString("SEQNO");
+            value = resultSet.getString("VALUE");
+            
+            //System.out.println("Sub ID: " + subid);
+            //System.out.println("Seq No: " + seqno);
+            System.out.println("Value: " + value);
+            
+        }
+		return value;
+			
+    }
+
 
     public static void main(String[] args) {
 
@@ -77,7 +108,7 @@ public class Subscriber_module{
         c3.waitFor();
         //Process c4 = run.exec(consumer4_topic);
         //c4.waitFor();
-        }
+		}
         catch (Exception e) {
             System.out.println(e);
         }
@@ -134,9 +165,30 @@ public class Subscriber_module{
 		Threshold cache_function = new Threshold();
 		boolean isCached = false;
 		int no_of_subs = 0;
+		int seq_no;
+		ArrayList<Integer> lastSeqNo = new ArrayList<Integer>();
+      	lastSeqNo.add(0);
+      	lastSeqNo.add(0);
+      	lastSeqNo.add(0);
+
+		Connection connect = null;
+    	Statement statement = null;
+    	PreparedStatement preparedStatement = null;
+    	ResultSet resultSet = null;
+		try {
+            // This will load the MySQL driver, each DB has its own driver
+            Class.forName("com.mysql.jdbc.Driver");
+            // Setup the connection with the DB
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/datab?"+ "user=root&password=radhit");
+
+			preparedStatement = connect.prepareStatement("truncate table food_pss");
+			preparedStatement.executeUpdate();
+			
+		
                 
         //System.out.println("a");   
     while (true){
+			
             //System.out.println("b");
            //System.out.println("inside while loop");
            ConsumerRecords<String, String> sub_records = sub_poller.poll(1);
@@ -156,19 +208,34 @@ public class Subscriber_module{
                 System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
 				ArrayList<String> list_of_sub = getFromList(items, record.value());
 				System.out.println(list_of_sub);
-				no_of_subs = size(list_of_sub);
+				no_of_subs = list_of_sub.size();
 				isCached = cache_function.update(no_of_subs);
+				for(String s : list_of_sub){
+					seq_no = lastSeqNo.get(Integer.parseInt(s)-1); 
+					lastSeqNo.set(Integer.parseInt(s)-1, seq_no + 1);
+			   	}
+
+
 				if(isCached){
                       
                 	for(String s : list_of_sub){
+							
                 	        System.out.println(s);
                 	        System.out.println("consumer"+s);
-                	        producer.send(new ProducerRecord<String, String>("consumer"+s, record.key(), record.value()));
+                	        producer.send(new ProducerRecord<String, String>("consumer"+s, lastSeqNo.get(Integer.parseInt(s)-1).toString(), record.value()));
                 	        System.out.println("Message sent successfully");
                		}
 				}
 				else{
-					//Send to database
+					for(String s : list_of_sub){
+						preparedStatement = connect.prepareStatement("insert into  datab.food_pss values (default, ?, ?, ?)");
+	            		// "myuser, webpage, datum, summary, COMMENTS from feedback.comments");
+	            		// Parameters start with 1
+	            		preparedStatement.setString(1, s);
+	            		preparedStatement.setString(2, lastSeqNo.get(Integer.parseInt(s)-1).toString());
+    	        		preparedStatement.setString(3, record.value());
+    	        		preparedStatement.executeUpdate();
+					}
 				}
            }
            //System.out.println("looping");
@@ -178,8 +245,17 @@ public class Subscriber_module{
                 System.out.printf("sub offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
                 //addToList(items, record.value(), record.key());
 				//Fetch from database and write to corresponding cache log
-				//producer.send(new ProducerRecord<String, String>("consumer"+s, record.key(), record.value()));
+				statement = connect.createStatement();
+           		// Result set get the result of the SQL query
+            	resultSet = statement.executeQuery("select value from food_pss where subid='" + record.key() +"' and seqno='" + record.value() +"'");
+            	String value = writeResultSet(resultSet);
+				
+				producer.send(new ProducerRecord<String, String>("consumer"+record.key(), record.value(), value));
            }
+        }}catch (Exception e) {
+			System.out.println(e);
+            System.out.println("Error. Terminating....");
+			System.out.println("Terminated.");
         }   
     }
 }
