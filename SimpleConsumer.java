@@ -7,16 +7,18 @@ import java.util.Arrays;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-
-import java.io.FileWriter;   // Import the FileWriter class
-import java.io.IOException;  // Import the IOException class to handle errors
 import java.lang.*;
+
+import java.io.FileWriter;  // Import the File class
+import java.io.IOException;  // Import the IOException class to handle errors
 
 
 public class SimpleConsumer {
    public static void main(String[] args) throws Exception {
       //Produer properties
+	  FileWriter myWriter = new FileWriter("timestamp.txt");
       Properties subscriber_props = new Properties();
+	  //FileWriter myWriter = new FileWriter("timestamp.txt");
            
       subscriber_props.put("bootstrap.servers", "localhost:9092");
       subscriber_props.put("acks", "all");
@@ -74,8 +76,13 @@ public class SimpleConsumer {
       consumerID.add(1);
       consumerID.add(2);
       consumerID.add(3);
+	  ArrayList<Long> latency = new ArrayList<Long>();
+      latency.add(0L);
+      latency.add(0L);
+      latency.add(0L);
       //initalize consumer iterable
       int j;
+	  
       while (true) 
       {
          j = 0;
@@ -84,9 +91,13 @@ public class SimpleConsumer {
          ConsumerRecords<String, String> consumer1 = c1_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer1)
             {
+			if(!(record.value().equals(""))){ 
+				String[] token = record.value().split(";");
+				latency.set(j, latency.get(j) + System.currentTimeMillis() - Long.parseLong(token[1]));
+			}
             // print the offset,key and value for the consumer records.
-            System.out.println("---consumer1---" );
-            System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            //System.out.println("---consumer1---" );
+            //System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
             if (Integer.parseInt(record.key()) != lastSeen.get(j) + 1 && Integer.parseInt(record.key())>lastSeen.get(j))
                {
                   int i;
@@ -106,9 +117,14 @@ public class SimpleConsumer {
          ConsumerRecords<String, String> consumer2 = c2_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer2)
          {
+			if(!(record.value().equals(""))){
+				//System.out.println("Record Value: " + record.value());	 
+				String[] token = record.value().split(";");
+				latency.set(j, latency.get(j) + System.currentTimeMillis() - Long.parseLong(token[1]));
+			}
             // print the offset,key and value for the consumer records.
-            System.out.println("---consumer2---" );
-            System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            //System.out.println("---consumer2---" );
+            //System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
             if (Integer.parseInt(record.key()) != lastSeen.get(j) + 1 && Integer.parseInt(record.key())>lastSeen.get(j))
             {
                int i;
@@ -128,9 +144,13 @@ public class SimpleConsumer {
          ConsumerRecords<String, String> consumer3 = c3_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer3)
          {
+			if(!(record.value().equals(""))){ 
+				String[] token = record.value().split(";");
+				latency.set(j, latency.get(j) + System.currentTimeMillis() - Long.parseLong(token[1]));
+			}
             // print the offset,key and value for the consumer records.
-            System.out.println("---consumer3---" );
-            System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
+            //System.out.println("---consumer3---" );
+            //System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
             if (Integer.parseInt(record.key()) != lastSeen.get(j) + 1 && Integer.parseInt(record.key())>lastSeen.get(j))
             {
                int i;
@@ -144,7 +164,13 @@ public class SimpleConsumer {
                lastSeen.set(j, Integer.parseInt(record.key()));
             }
          }
+		
+		 long ts = latency.get(0) + latency.get(1) + latency.get(2);
+		 myWriter.write("Average Latency: " + ts + "\n");
+      				
+		  
       }
+		//myWriter.close();
    }
    
 }
