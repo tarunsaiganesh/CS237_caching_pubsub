@@ -6,6 +6,9 @@ public class Threshold
 	private int itr;
 	private double sum;
 	private int batch_sz;
+	private double prev_val;
+	private double gamma;
+	private double alpha;
 
     public Threshold()
     {
@@ -15,6 +18,9 @@ public class Threshold
 		itr = 0;
 		sum = 0.0;
 		batch_sz = 50;
+		prev_val = 0;
+		gamma = 0.7;
+		alpha = 0.3;
     }
 
 	public boolean policy_1(double t){
@@ -37,9 +43,9 @@ public class Threshold
 		itr++;
 
 		if(itr % (batch_sz) == 1){
+			System.out.println("Threshold: " + threshold);
 			threshold = sum/batch_sz;
 			sum = 0;
-			itr = 0;
 		}
 		
 		if(threshold<=t)
@@ -56,7 +62,18 @@ public class Threshold
 	}
 
 	public boolean policy_3(double t){
-		return true;
+		threshold = gamma * t + alpha * prev_val;
+		prev_val = t;
+		
+		if(threshold<=t)
+        {
+            return true;
+        }
+        //IF GREATER, RETURN false
+        else
+        {
+            return false;
+        }
 	}
 
     public boolean update(double t, int policy)

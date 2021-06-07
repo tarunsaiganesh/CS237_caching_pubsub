@@ -177,6 +177,8 @@ public class Subscriber_module{
 		int seq_no;
 		int pub_seq_no = 0;
 		int flag = 0;
+		double cache_hits = 0.0;
+		double duplication_sum = 0.0;
 		ArrayList<Integer> lastSeqNo = new ArrayList<Integer>();
       	lastSeqNo.add(0);
       	lastSeqNo.add(0);
@@ -233,7 +235,8 @@ public class Subscriber_module{
 
 
 				if(isCached){
-                      
+                    cache_hits++;
+					duplication_sum = duplication_sum + no_of_subs;  
                 	for(String s : list_of_sub){
 							
                 	        System.out.println(s);
@@ -256,6 +259,9 @@ public class Subscriber_module{
            }
 
 			if(pub_seq_no == 1000 && flag == 0){
+				System.out.println("Cache Hit Rate: " + cache_hits/pub_seq_no);
+				if(cache_hits != 0)
+					System.out.println("Duplication Factor: " + duplication_sum/cache_hits);
 				flag = 1;
 				for(int i = 0; i < lastSeqNo.size(); i++){
 					System.out.println("Last Seq No:" + lastSeqNo.get(i) + " Sub ID:" + i);

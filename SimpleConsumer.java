@@ -8,6 +8,10 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
+import java.lang.*;
+
 
 public class SimpleConsumer {
    public static void main(String[] args) throws Exception {
