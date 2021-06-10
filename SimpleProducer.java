@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.*;
 
 //Create java class named “SimpleProducer”
 public class SimpleProducer {
@@ -47,6 +48,9 @@ public class SimpleProducer {
 
       String fileName = "test.csv";
       Path pathToFile = Paths.get(fileName);
+	  //FileWriter myWriter = new FileWriter("timestamp.txt");
+	  //long initial_ts;
+	  
 
         // create an instance of BufferedReader
         // using try with resource, Java 7 feature to close resources
@@ -56,6 +60,7 @@ public class SimpleProducer {
             // read the first line from the text file
             String line = br.readLine();
                   // loop until all lines are read
+			//initial_ts = System.currentTimeMillis();
                   while (line != null) {
 
                      // use string.split to load a string array with the values from
@@ -65,15 +70,20 @@ public class SimpleProducer {
                      String[] attributes = line.split(",");
                      //SEND RECORD TO PRODUCER
                      //producer.send(new ProducerRecord<String, String>("pub_log", attributes[0], attributes[1]));
-                     System.out.println("about to send...");
-                     producer.send(new ProducerRecord<String, String>("pub_log", attributes[0], attributes[1]));
-                     System.out.println("sent");
+                     //System.out.println("about to send...");
+					 
+					 
+      				 //myWriter.write("" + (System.currentTimeMillis()-initial_ts) +"\n");
+					 
+                     producer.send(new ProducerRecord<String, String>("pub_log", attributes[0], attributes[1] + ";" + System.currentTimeMillis()));
+                     //System.out.println("sent");
                      // read next line before looping
                      // if end of file reached, line would be null
                      line = br.readLine();
                      //System.out.println('c');
                  }
                  producer.close();
+				 //myWriter.close();
      
              } catch (IOException ioe) {
                  ioe.printStackTrace();
