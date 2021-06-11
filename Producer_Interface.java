@@ -18,7 +18,7 @@ import java.util.List;
 import java.lang.*;
 
 //Create java class named “SimpleProducer”
-public class SimpleProducer {
+public class Producer_Interface {
    
    public static void main(String[] args) throws Exception{
       /*//Assign topicName to string variable
@@ -46,7 +46,7 @@ public class SimpleProducer {
       
       Producer<String, String> producer = new KafkaProducer<String, String>(props);
 
-      String fileName = "test.csv";
+      String fileName = args[0];
       Path pathToFile = Paths.get(fileName);
 	  //FileWriter myWriter = new FileWriter("timestamp.txt");
 	  //long initial_ts;

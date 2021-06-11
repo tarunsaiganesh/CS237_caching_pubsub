@@ -13,10 +13,11 @@ import java.io.FileWriter;  // Import the File class
 import java.io.IOException;  // Import the IOException class to handle errors
 
 
-public class SimpleConsumer {
+public class Consumer_Interface {
    public static void main(String[] args) throws Exception {
       //Produer properties
-	  FileWriter myWriter = new FileWriter("timestamp.txt");
+	  String ts_file = args[0];
+	  FileWriter myWriter = new FileWriter(ts_file);
       Properties subscriber_props = new Properties();
 	  //FileWriter myWriter = new FileWriter("timestamp.txt");
            
@@ -80,6 +81,10 @@ public class SimpleConsumer {
       latency.add(0L);
       latency.add(0L);
       latency.add(0L);
+	  ArrayList<Integer> dummySeqNo = new ArrayList<Integer>();
+      dummySeqNo.add(-1);
+      dummySeqNo.add(-1);
+      dummySeqNo.add(-1);
       //initalize consumer iterable
       int j;
 	  
@@ -91,9 +96,15 @@ public class SimpleConsumer {
          ConsumerRecords<String, String> consumer1 = c1_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer1)
             {
+			if(Integer.parseInt(record.key()) == dummySeqNo.get(j)){
+				System.out.println("Consumer " + j + " finished...");
+			}
 			if(!(record.value().equals(""))){ 
 				String[] token = record.value().split(";");
 				latency.set(j, latency.get(j) + System.currentTimeMillis() - Long.parseLong(token[1]));
+			}
+			else{
+				dummySeqNo.set(j, Integer.parseInt(record.key()) - 1);
 			}
             // print the offset,key and value for the consumer records.
             //System.out.println("---consumer1---" );
@@ -117,10 +128,16 @@ public class SimpleConsumer {
          ConsumerRecords<String, String> consumer2 = c2_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer2)
          {
+			if(Integer.parseInt(record.key()) == dummySeqNo.get(j)){
+				System.out.println("Consumer " + j + " finished...");
+			}
 			if(!(record.value().equals(""))){
 				//System.out.println("Record Value: " + record.value());	 
 				String[] token = record.value().split(";");
 				latency.set(j, latency.get(j) + System.currentTimeMillis() - Long.parseLong(token[1]));
+			}
+			else{
+				dummySeqNo.set(j, Integer.parseInt(record.key()) - 1);
 			}
             // print the offset,key and value for the consumer records.
             //System.out.println("---consumer2---" );
@@ -144,9 +161,15 @@ public class SimpleConsumer {
          ConsumerRecords<String, String> consumer3 = c3_poller.poll(1);
          for (ConsumerRecord<String, String> record : consumer3)
          {
+			if(Integer.parseInt(record.key()) == dummySeqNo.get(j)){
+				System.out.println("Consumer " + j + " finished...");
+			}
 			if(!(record.value().equals(""))){ 
 				String[] token = record.value().split(";");
 				latency.set(j, latency.get(j) + System.currentTimeMillis() - Long.parseLong(token[1]));
+			}
+			else{
+				dummySeqNo.set(j, Integer.parseInt(record.key()) - 1);
 			}
             // print the offset,key and value for the consumer records.
             //System.out.println("---consumer3---" );

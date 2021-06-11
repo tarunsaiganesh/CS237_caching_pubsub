@@ -43,7 +43,7 @@ public class Threshold
 		itr++;
 
 		if(itr % (batch_sz) == 1){
-			System.out.println("Threshold: " + threshold);
+			//System.out.println("Threshold: " + threshold);
 			threshold = sum/batch_sz;
 			sum = 0;
 		}
